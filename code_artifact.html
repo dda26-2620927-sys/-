@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>종이 절약 환경·에너지 효과 시뮬레이터</title>
+  <!-- Tailwind CSS CDN 로드 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Sans KR & Inter 로드 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* 기본 폰트 및 부드러운 스크롤 설정 */
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f3faf6;
+      color: #1e293b;
+    }
+
+    /* 커스텀 범위 슬라이더 디자인 */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 9999px;
+      background: #d1fae5;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #059669;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+      background: #047857;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #059669;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    /* 소나무가 자라나는 애니메이션 */
+    @keyframes sproutTree {
+      0% {
+        opacity: 0;
+        transform: scale(0.2) translateY(10px);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.15) translateY(-2px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .tree-sprout {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      animation: sproutTree 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-emerald-200 selection:text-emerald-900">
+
+  <!-- 상단 헤더 영역 -->
+  <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 text-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-emerald-100 text-xs sm:text-sm font-semibold mb-3">
+            <span>🌱</span>
+            <span>탄소중립 · 에너지 절약 과학 시뮬레이션</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+            종이 절약 환경·에너지 효과 시뮬레이터
+          </h1>
+          <p class="mt-2 text-emerald-100 text-sm sm:text-base max-w-2xl leading-relaxed">
+            A4 용지 1장을 아낄 때 절감되는 에너지와 이산화탄소(CO₂)를 계산하고,
+            우리 반·우리 학교처럼 여러 명이 함께 실천할 때 만들어지는 놀라운 소나무 숲 효과를 확인해 보세요.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 self-start md:self-center">
+          <button
+            id="reset-btn"
+            type="button"
+            class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white text-sm font-semibold border border-white/25 transition flex items-center gap-2 shadow-sm"
+          >
+            <span>🔄</span>
+            <span>기본값 초기화</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 콘텐츠 컨테이너 -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+
+    <!-- 1. A4 용지 1장당 생산 에너지 및 환경 부하 기준 섹션 -->
+    <section aria-labelledby="baseline-heading" class="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-100">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">STEP 01 · 기준 데이터</span>
+          <h2 id="baseline-heading" class="text-lg sm:text-xl font-bold text-slate-800 mt-0.5">
+            📄 A4 용지 1장(약 5g) 생산에 필요한 에너지 및 환경 부하 기준
+          </h2>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200 self-start sm:self-center">
+          1장 절약 = 아래 자원을 모두 아끼는 효과!
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 기준 1: 소비 에너지 -->
+        <div class="rounded-2xl bg-amber-50/70 border border-amber-200/80 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">소비 에너지</span>
+              <span class="text-xl" aria-hidden="true">⚡</span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">28 Wh</div>
+            <div class="text-xs font-semibold text-amber-800 mt-0.5">0.028 kWh / 100.8 kJ</div>
+          </div>
+          <p class="text-xs text-slate-600 mt-3 pt-2.5 border-t border-amber-200/60 leading-relaxed">
+            스마트폰 약 <strong>2회</strong> 충전 또는 10W LED 전구 <strong>2.8시간</strong> 점등 에너지
+          </p>
+        </div>
+
+        <!-- 기준 2: 이산화탄소 배출량 -->
+        <div class="rounded-2xl bg-sky-50/70 border border-sky-200/80 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-full">CO₂ 배출량</span>
+              <span class="text-xl" aria-hidden="true">🌍</span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">2.88 g</div>
+            <div class="text-xs font-semibold text-sky-800 mt-0.5">0.00288 kg CO₂</div>
+          </div>
+          <p class="text-xs text-slate-600 mt-3 pt-2.5 border-t border-sky-200/60 leading-relaxed">
+            벌목·펄프 가공·제지·운송 과정에서 발생하는 온실가스 배출량
+          </p>
+        </div>
+
+        <!-- 기준 3: 물 소비량 -->
+        <div class="rounded-2xl bg-cyan-50/70 border border-cyan-200/80 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-cyan-800 bg-cyan-100 px-2.5 py-0.5 rounded-full">물 소비량</span>
+              <span class="text-xl" aria-hidden="true">💧</span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">10 L</div>
+            <div class="text-xs font-semibold text-cyan-800 mt-0.5">500mL 생수병 20병</div>
+          </div>
+          <p class="text-xs text-slate-600 mt-3 pt-2.5 border-t border-cyan-200/60 leading-relaxed">
+            펄프 세척 및 종이 제조 공정에서 소비되는 깨끗한 수자원
+          </p>
+        </div>
+
+        <!-- 기준 4: 소나무 흡수 및 원목 기준 -->
+        <div class="rounded-2xl bg-emerald-50/80 border border-emerald-200/80 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">소나무 기준</span>
+              <span class="text-xl" aria-hidden="true">🌲</span>
+            </div>
+            <div class="text-2xl font-extrabold text-slate-900">연 6.6 kg</div>
+            <div class="text-xs font-semibold text-emerald-800 mt-0.5">30년생 소나무 1그루 CO₂ 흡수</div>
+          </div>
+          <p class="text-xs text-slate-600 mt-3 pt-2.5 border-t border-emerald-200/60 leading-relaxed">
+            A4 <strong>약 2,292장</strong> = 소나무 1그루 1년 흡수량 / <strong>10,000장</strong> = 원목 1그루 보호
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 여러 명 절약 조건 설정 섹션 -->
+    <section aria-labelledby="controls-heading" class="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-100">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">STEP 02 · 참여 조건 설정</span>
+        <h2 id="controls-heading" class="text-lg sm:text-xl font-bold text-slate-800 mt-0.5">
+          👥 여러 명이 함께 종이를 절약하는 조건을 설정해 보세요
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 컨트롤 1: 참여 인원 수 -->
+        <div class="rounded-2xl bg-slate-50 p-5 border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label for="people-input" class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <span>🧑‍🤝‍🧑</span>
+                <span>참여 인원 수 (명)</span>
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input
+                  id="people-input"
+                  type="number"
+                  min="1"
+                  max="100000"
+                  value="30"
+                  class="w-24 px-2.5 py-1.5 text-right font-extrabold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+                <span class="text-sm font-bold text-slate-600">명</span>
+              </div>
+            </div>
+
+            <input
+              id="people-slider"
+              type="range"
+              min="1"
+              max="1000"
+              value="30"
+              aria-label="참여 인원 수 슬라이더"
+              class="w-full my-2"
+            />
+            <div class="flex justify-between text-[11px] font-medium text-slate-400 px-0.5">
+              <span>1명</span>
+              <span>250명</span>
+              <span>500명</span>
+              <span>750명</span>
+              <span>1,000명</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-4">
+            <button type="button" data-people="1" class="preset-people px-3 py-2 rounded-xl text-xs font-bold border transition">
+              나 혼자 (1명)
+            </button>
+            <button type="button" data-people="30" class="preset-people px-3 py-2 rounded-xl text-xs font-bold border transition">
+              우리 반 (30명)
+            </button>
+            <button type="button" data-people="300" class="preset-people px-3 py-2 rounded-xl text-xs font-bold border transition">
+              한 학년 (300명)
+            </button>
+            <button type="button" data-people="900" class="preset-people px-3 py-2 rounded-xl text-xs font-bold border transition">
+              전교생 (900명)
+            </button>
+          </div>
+        </div>
+
+        <!-- 컨트롤 2: 1인당 하루 절약 장수 -->
+        <div class="rounded-2xl bg-slate-50 p-5 border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label for="sheets-input" class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <span>📝</span>
+                <span>1인당 하루 절약 장수</span>
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input
+                  id="sheets-input"
+                  type="number"
+                  min="1"
+                  max="500"
+                  value="3"
+                  class="w-20 px-2.5 py-1.5 text-right font-extrabold text-emerald-700 bg-white border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+                <span class="text-sm font-bold text-slate-600">장</span>
+              </div>
+            </div>
+
+            <input
+              id="sheets-slider"
+              type="range"
+              min="1"
+              max="50"
+              value="3"
+              aria-label="1인당 하루 절약 장수 슬라이더"
+              class="w-full my-2"
+            />
+            <div class="flex justify-between text-[11px] font-medium text-slate-400 px-0.5">
+              <span>1장</span>
+              <span>10장</span>
+              <span>25장</span>
+              <span>40장</span>
+              <span>50장</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2 mt-4">
+            <button type="button" data-sheets="1" class="preset-sheets px-2 py-2.5 rounded-xl text-xs font-bold border transition">
+              1장
+            </button>
+            <button type="button" data-sheets="3" class="preset-sheets px-2 py-2.5 rounded-xl text-xs font-bold border transition">
+              3장
+            </button>
+            <button type="button" data-sheets="5" class="preset-sheets px-2 py-2.5 rounded-xl text-xs font-bold border transition">
+              5장
+            </button>
+            <button type="button" data-sheets="10" class="preset-sheets px-2 py-2.5 rounded-xl text-xs font-bold border transition">
+              10장
+            </button>
+          </div>
+        </div>
+
+        <!-- 컨트롤 3: 절약 기간 선택 -->
+        <div class="rounded-2xl bg-slate-50 p-5 border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <span>📅</span>
+                <span>절약 실천 기간</span>
+              </span>
+              <span id="days-badge" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-extrabold">
+                365일 (1년)
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed mb-4">
+              하루의 작은 습관이 일주일, 한 달, 1년 동안 꾸준히 모였을 때의 누적 환경 보호 효과를 확인하세요.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" data-days="1" class="preset-days px-3 py-3 rounded-xl text-xs sm:text-sm font-bold border transition">
+              1일 (1일)
+            </button>
+            <button type="button" data-days="7" class="preset-days px-3 py-3 rounded-xl text-xs sm:text-sm font-bold border transition">
+              1주일 (7일)
+            </button>
+            <button type="button" data-days="30" class="preset-days px-3 py-3 rounded-xl text-xs sm:text-sm font-bold border transition">
+              1개월 (30일)
+            </button>
+            <button type="button" data-days="365" class="preset-days px-3 py-3 rounded-xl text-xs sm:text-sm font-bold border transition">
+              1년 (365일)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 실시간 총 절약 용지 요약 배너 -->
+      <div class="mt-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 sm:p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl shrink-0">
+            📑
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm text-emerald-100 font-medium" id="formula-summary">
+              30명 × 하루 3장 × 365일 실천 시
+            </div>
+            <div class="text-xl sm:text-2xl font-extrabold tracking-tight">
+              총 절약한 A4 용지: <span id="total-sheets" class="underline decoration-emerald-300 decoration-2 underline-offset-4">32,850</span> 장
+            </div>
+          </div>
+        </div>
+        <div class="px-3.5 py-2 rounded-xl bg-black/15 text-xs sm:text-sm font-semibold text-emerald-50 self-stretch sm:self-center flex items-center justify-center">
+          절약한 종이 무게: 약 <span id="total-weight" class="font-extrabold text-white mx-1">164.25 kg</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 실시간 절약 효과 결과 대시보드 -->
+    <section aria-labelledby="results-heading" class="space-y-4">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">STEP 03 · 시뮬레이션 결과</span>
+        <h2 id="results-heading" class="text-lg sm:text-xl font-bold text-slate-800 mt-0.5">
+          📊 실시간 에너지·환경 절약 효과 대시보드
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- 결과 카드 1: 총 절약 에너지 -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-amber-200/80 hover:shadow-md transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+                <span>⚡</span>
+                <span>총 절약 에너지</span>
+              </span>
+              <div class="mt-3 flex items-baseline gap-2 flex-wrap">
+                <span id="res-kwh" class="text-3xl sm:text-4xl font-extrabold text-slate-900">919.80</span>
+                <span class="text-lg font-bold text-amber-700">kWh</span>
+              </div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                (<span id="res-wh">919,800</span> Wh / <span id="res-mj">3,311.28</span> MJ)
+              </div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-100/80 flex items-center justify-center text-2xl shrink-0">
+              🔋
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-3">
+            <div class="rounded-xl bg-amber-50/70 p-3">
+              <div class="text-[11px] font-semibold text-slate-500">스마트폰 완충 환산</div>
+              <div class="text-sm sm:text-base font-extrabold text-amber-900 mt-0.5">
+                약 <span id="res-phones">65,700</span> 회
+              </div>
+            </div>
+            <div class="rounded-xl bg-amber-50/70 p-3">
+              <div class="text-[11px] font-semibold text-slate-500">10W LED 전구 사용</div>
+              <div class="text-sm sm:text-base font-extrabold text-amber-900 mt-0.5">
+                <span id="res-led">91,980</span> 시간
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 결과 카드 2: 이산화탄소 감축량 -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-sky-200/80 hover:shadow-md transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-800 bg-sky-100 px-3 py-1 rounded-full">
+                <span>🌍</span>
+                <span>이산화탄소(CO₂) 감축량</span>
+              </span>
+              <div class="mt-3 flex items-baseline gap-2 flex-wrap">
+                <span id="res-co2-kg" class="text-3xl sm:text-4xl font-extrabold text-slate-900">94.61</span>
+                <span class="text-lg font-bold text-sky-700">kg</span>
+                <span id="res-co2-ton-wrap" class="hidden text-sm font-bold text-sky-600">
+                  (<span id="res-co2-ton">0.09</span> 톤)
+                </span>
+              </div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                (<span id="res-co2-g">94,608</span> g CO₂ 감축)
+              </div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-sky-100/80 flex items-center justify-center text-2xl shrink-0">
+              ☁️
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100">
+            <div class="rounded-xl bg-sky-50/70 p-3 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-semibold text-slate-500">승용차 주행 거리 감축 효과 (1km당 162g 기준)</div>
+                <div class="text-sm sm:text-base font-extrabold text-sky-900 mt-0.5">
+                  승용차 약 <span id="res-car-km">584.0</span> km 주행 중단 효과
+                </div>
+              </div>
+              <span class="text-xl" aria-hidden="true">🚗</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 결과 카드 3: 소나무 심기 효과 -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-200/90 hover:shadow-md transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+                <span>🌲</span>
+                <span>소나무 심기 효과</span>
+              </span>
+              <div class="mt-3 flex items-baseline gap-2 flex-wrap">
+                <span id="res-pine-co2" class="text-3xl sm:text-4xl font-extrabold text-emerald-700">14.33</span>
+                <span class="text-lg font-bold text-emerald-800">그루</span>
+              </div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                30년생 소나무 연간 CO₂ 흡수량(6.6kg/그루) 기준
+              </div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100/80 flex items-center justify-center text-2xl shrink-0">
+              🌳
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100">
+            <div class="rounded-xl bg-emerald-50/80 p-3 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-semibold text-slate-500">제지용 원목 벌목 직접 보호 효과 (10,000장당 1그루)</div>
+                <div class="text-sm sm:text-base font-extrabold text-emerald-900 mt-0.5">
+                  30년생 원목 약 <span id="res-pine-wood">3.29</span> 그루 벌목 보호
+                </div>
+              </div>
+              <span class="text-xl" aria-hidden="true">🪵</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 결과 카드 4: 물 절약량 -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-cyan-200/80 hover:shadow-md transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-800 bg-cyan-100 px-3 py-1 rounded-full">
+                <span>💧</span>
+                <span>물 절약량</span>
+              </span>
+              <div class="mt-3 flex items-baseline gap-2 flex-wrap">
+                <span id="res-water-l" class="text-3xl sm:text-4xl font-extrabold text-slate-900">328,500</span>
+                <span class="text-lg font-bold text-cyan-700">L</span>
+              </div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+                (약 <span id="res-water-ton">328.50</span> 톤의 수자원 보존)
+              </div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-cyan-100/80 flex items-center justify-center text-2xl shrink-0">
+              🚰
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100">
+            <div class="rounded-xl bg-cyan-50/70 p-3 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-semibold text-slate-500">500mL 생수병 환산 (A4 1장 = 20병)</div>
+                <div class="text-sm sm:text-base font-extrabold text-cyan-900 mt-0.5">
+                  500mL 생수 <span id="res-bottles">657,000</span> 병 절약
+                </div>
+              </div>
+              <span class="text-xl" aria-hidden="true">🧴</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 시각적 소나무 숲 & 혼자 vs 여러 명 비교 차트 섹션 -->
+    <section aria-labelledby="visual-heading" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- 왼쪽: 가상 소나무 숲 시뮬레이션 -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">VISUAL FOREST</span>
+              <h3 id="visual-heading" class="text-lg font-bold text-slate-800">
+                🌲 우리가 함께 가꾼 가상 소나무 숲
+              </h3>
+            </div>
+            <span id="forest-badge" class="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-extrabold shadow-sm">
+              소나무 14.33그루 효과
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-500 mb-4 leading-relaxed">
+            CO₂ 감축량에 비례하여 30년생 소나무가 숲에 심어집니다. (최대 100그루까지 시각적으로 표시되며, 1그루 미만일 때는 새싹 🌱이 자라납니다.)
+          </p>
+
+          <!-- 소나무 숲 렌더링 컨테이너 -->
+          <div
+            id="pine-forest-box"
+            class="min-h-[190px] rounded-2xl bg-gradient-to-b from-sky-50 via-emerald-50/70 to-emerald-100/90 border border-emerald-200/80 p-4 flex flex-wrap content-start gap-1.5 overflow-hidden"
+            aria-live="polite"
+          >
+            <!-- JavaScript로 소나무 아이콘이 동적 생성됩니다 -->
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>🌲 30년생 소나무 1그루 = 연 6.6kg CO₂ 흡수</span>
+          <span id="forest-count-note" class="font-bold text-emerald-700">14그루 표시 중</span>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 1명 절약 vs 여러 명 절약 비교 차트 -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-100 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">TOGETHER IMPACT</span>
+              <h3 class="text-lg font-bold text-slate-800">
+                📈 혼자 절약할 때 vs 여러 명이 함께할 때
+              </h3>
+            </div>
+            <span id="multiplier-badge" class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold">
+              함께하면 효과 30배!
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed">
+            같은 기간 동안 <strong>1명만</strong> 실천했을 때와 현재 설정한 <strong id="compare-people-label">30명</strong>이 함께 실천했을 때의 절감 규모를 비교합니다.
+          </p>
+
+          <div class="space-y-6">
+            <!-- 비교 항목 1: 절약 에너지 (kWh) -->
+            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/70">
+              <div class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>절약 에너지 비교 (kWh)</span>
+              </div>
+
+              <!-- 1명 기준 바 -->
+              <div class="mb-3">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="font-semibold text-slate-500">나 혼자 (1명)</span>
+                  <span id="bar-energy-single-val" class="font-bold text-slate-700">30.66 kWh</span>
+                </div>
+                <div class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div
+                    id="bar-energy-single"
+                    class="h-full bg-amber-400 rounded-full transition-all duration-500"
+                    style="width: 3.33%"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- 여러 명 기준 바 -->
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span id="bar-energy-group-label" class="font-bold text-amber-800">우리 함께 (30명)</span>
+                  <span id="bar-energy-group-val" class="font-extrabold text-amber-800">919.80 kWh</span>
+                </div>
+                <div class="w-full h-3.5 bg-amber-100 rounded-full overflow-hidden">
+                  <div
+                    id="bar-energy-group"
+                    class="h-full bg-amber-500 rounded-full transition-all duration-500"
+                    style="width: 100%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 비교 항목 2: 이산화탄소 감축량 (kg) -->
+            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200/70">
+              <div class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                <span>🌍</span>
+                <span>이산화탄소(CO₂) 감축량 비교 (kg)</span>
+              </div>
+
+              <!-- 1명 기준 바 -->
+              <div class="mb-3">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="font-semibold text-slate-500">나 혼자 (1명)</span>
+                  <span id="bar-co2-single-val" class="font-bold text-slate-700">3.15 kg</span>
+                </div>
+                <div class="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div
+                    id="bar-co2-single"
+                    class="h-full bg-emerald-400 rounded-full transition-all duration-500"
+                    style="width: 3.33%"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- 여러 명 기준 바 -->
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span id="bar-co2-group-label" class="font-bold text-emerald-800">우리 함께 (30명)</span>
+                  <span id="bar-co2-group-val" class="font-extrabold text-emerald-800">94.61 kg</span>
+                </div>
+                <div class="w-full h-3.5 bg-emerald-100 rounded-full overflow-hidden">
+                  <div
+                    id="bar-co2-group"
+                    class="h-full bg-emerald-600 rounded-full transition-all duration-500"
+                    style="width: 100%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 종이 절약의 여러 가지 좋은 점 (4-Card Informational Grid) -->
+    <section aria-labelledby="benefits-heading" class="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-100">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">WHY SAVE PAPER?</span>
+        <h2 id="benefits-heading" class="text-lg sm:text-xl font-bold text-slate-800 mt-0.5">
+          🌿 종이를 절약하면 우리 지구에 어떤 좋은 점이 있을까요?
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 장점 1 -->
+        <article class="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/60 border border-emerald-200/70 p-5">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold mb-3 shadow-sm">
+            1
+          </div>
+          <h3 class="text-base font-bold text-slate-800 mb-2">
+            지구 온난화 방지 및 탄소 중립 기여
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            종이 생산과 폐기 과정에서 발생하는 온실가스를 줄이고, 탄소를 흡수하는 숲을 지켜 기후 위기 대응과 탄소 중립 실현에 직접 기여합니다.
+          </p>
+        </article>
+
+        <!-- 장점 2 -->
+        <article class="rounded-2xl bg-gradient-to-br from-green-50 to-lime-50/60 border border-green-200/70 p-5">
+          <div class="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center text-lg font-bold mb-3 shadow-sm">
+            2
+          </div>
+          <h3 class="text-base font-bold text-slate-800 mb-2">
+            산림 생태계 보전 및 야생동물 서식지 보호
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            무분별한 원목 벌목을 막아 울창한 산림을 보존하고, 숲에 살아가는 다양한 동식물의 서식지와 생물 다양성을 안전하게 지킬 수 있습니다.
+          </p>
+        </article>
+
+        <!-- 장점 3 -->
+        <article class="rounded-2xl bg-gradient-to-br from-cyan-50 to-sky-50/60 border border-cyan-200/70 p-5">
+          <div class="w-10 h-10 rounded-xl bg-cyan-600 text-white flex items-center justify-center text-lg font-bold mb-3 shadow-sm">
+            3
+          </div>
+          <h3 class="text-base font-bold text-slate-800 mb-2">
+            수자원 절약 및 제지 표백 폐수 감소
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            펄프를 씻고 종이를 하얗게 표백하는 과정에서 쓰이는 막대한 물과 화학 약품 사용량을 줄여 하천과 해양의 수질 오염을 예방합니다.
+          </p>
+        </article>
+
+        <!-- 장점 4 -->
+        <article class="rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50/60 border border-amber-200/70 p-5">
+          <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center text-lg font-bold mb-3 shadow-sm">
+            4
+          </div>
+          <h3 class="text-base font-bold text-slate-800 mb-2">
+            산업 전력 에너지 절감 및 쓰레기 비용 감소
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            제지 공장의 막대한 전력·화석연료 소비를 줄일 뿐만 아니라, 버려지는 종이 쓰레기 소각·매립 비용과 재활용 처리 부담까지 함께 낮춰줍니다.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 6. 여백 공간 제작자 표기 영역 -->
+    <section aria-label="제작자 정보 여백 공간" class="py-10 sm:py-14 px-6 bg-white/80 rounded-3xl border border-dashed border-emerald-200 flex flex-col items-center justify-center text-center">
+      <p class="text-xl sm:text-2xl font-extrabold tracking-wide text-slate-800">
+        능허대중학교20927유이준
+      </p>
+    </section>
+
+  </main>
+
+  <!-- 하단 푸터 영역 -->
+  <footer class="bg-white border-t border-emerald-100 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-500">
+      <div>
+        종이 절약 환경·에너지 효과 시뮬레이터 · 작은 실천이 모여 큰 숲을 만듭니다.
+      </div>
+      <div class="font-bold text-slate-700 tracking-wide">
+        능허대중학교20927유이준
+      </div>
+    </div>
+  </footer>
+
+  <!-- 시뮬레이션 계산 및 인터랙션 스크립트 (순수 Vanilla JS) -->
+  <script>
+    (function () {
+      'use strict';
+
+      // ==========================================
+      // 1. 환경·에너지 계산 상수 정의 (A4 1장 기준)
+      // ==========================================
+      const CONSTANTS = {
+        PAPER_WEIGHT_G: 5,          // A4 1장 무게: 약 5g
+        ENERGY_WH_PER_SHEET: 28,    // A4 1장당 소비 에너지: 28 Wh
+        ENERGY_KWH_PER_SHEET: 0.028,// A4 1장당 소비 에너지: 0.028 kWh
+        ENERGY_KJ_PER_SHEET: 100.8, // A4 1장당 소비 에너지: 100.8 kJ
+        PHONE_CHARGES_PER_SHEET: 2, // 스마트폰 충전 횟수 환산 (28Wh / 14Wh = 2회)
+        LED_10W_HOURS_PER_SHEET: 2.8, // 10W LED 전구 사용 시간 (28Wh / 10W = 2.8시간)
+        CO2_G_PER_SHEET: 2.88,      // A4 1장당 이산화탄소 배출량: 2.88 g
+        CAR_CO2_G_PER_KM: 162,      // 승용차 1km 주행당 평균 CO2 배출량: 162 g
+        PINE_CO2_KG_PER_YEAR: 6.6,  // 30년생 소나무 1그루 연간 CO2 흡수량: 6.6 kg
+        SHEETS_PER_LOG_TREE: 10000, // 30년생 원목 1그루당 A4 생산량: 10,000장
+        WATER_L_PER_SHEET: 10,      // A4 1장당 물 소비량: 10 L
+        BOTTLES_500ML_PER_SHEET: 20 // 500mL 생수병 환산: 20병
+      };
+
+      // ==========================================
+      // 2. 시뮬레이션 상태 변수 (기본값: 우리 반 30명, 하루 3장, 1년 365일)
+      // ==========================================
+      const state = {
+        people: 30,
+        sheetsPerDay: 3,
+        days: 365
+      };
+
+      let lastRenderedTreeKey = '';
+
+      // ==========================================
+      // 3. 숫자 포맷팅 유틸리티 함수
+      // ==========================================
+      function formatInt(num) {
+        return Math.round(num).toLocaleString('ko-KR');
+      }
+
+      function formatDecimal(num, digits) {
+        return Number(num).toLocaleString('ko-KR', {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        });
+      }
+
+      function getDaysLabel(days) {
+        if (days === 1) return '1일';
+        if (days === 7) return '1주일 (7일)';
+        if (days === 30) return '1개월 (30일)';
+        if (days === 365) return '1년 (365일)';
+        return days + '일';
+      }
+
+      // ==========================================
+      // 4. 프리셋 버튼 활성 상태 스타일 업데이트
+      // ==========================================
+      function updateActiveButtons() {
+        const activeClasses = ['bg-emerald-600', 'text-white', 'border-emerald-600', 'shadow-sm'];
+        const inactiveClasses = ['bg-white', 'text-slate-700', 'border-slate-200', 'hover:border-emerald-400', 'hover:text-emerald-700'];
+
+        // 참여 인원 프리셋 버튼
+        document.querySelectorAll('.preset-people').forEach((btn) => {
+          const val = Number(btn.getAttribute('data-people'));
+          if (val === state.people) {
+            btn.classList.remove(...inactiveClasses);
+            btn.classList.add(...activeClasses);
+          } else {
+            btn.classList.remove(...activeClasses);
+            btn.classList.add(...inactiveClasses);
+          }
+        });
+
+        // 하루 절약 장수 프리셋 버튼
+        document.querySelectorAll('.preset-sheets').forEach((btn) => {
+          const val = Number(btn.getAttribute('data-sheets'));
+          if (val === state.sheetsPerDay) {
+            btn.classList.remove(...inactiveClasses);
+            btn.classList.add(...activeClasses);
+          } else {
+            btn.classList.remove(...activeClasses);
+            btn.classList.add(...inactiveClasses);
+          }
+        });
+
+        // 절약 기간 프리셋 버튼
+        document.querySelectorAll('.preset-days').forEach((btn) => {
+          const val = Number(btn.getAttribute('data-days'));
+          if (val === state.days) {
+            btn.classList.remove(...inactiveClasses);
+            btn.classList.add(...activeClasses);
+          } else {
+            btn.classList.remove(...activeClasses);
+            btn.classList.add(...inactiveClasses);
+          }
+        });
+      }
+
+      // ==========================================
+      // 5. 가상 소나무 숲 시각화 업데이트
+      // ==========================================
+      function renderPineForest(pineTreesCount) {
+        const forestBox = document.getElementById('pine-forest-box');
+        const forestBadge = document.getElementById('forest-badge');
+        const forestCountNote = document.getElementById('forest-count-note');
+
+        if (!forestBox || !forestBadge || !forestCountNote) return;
+
+        forestBadge.textContent = `소나무 ${formatDecimal(pineTreesCount, 2)}그루 효과`;
+
+        let fullTrees = Math.floor(pineTreesCount);
+        let hasSapling = false;
+
+        if (fullTrees === 0) {
+          hasSapling = true;
+        } else if (fullTrees < 100 && (pineTreesCount - fullTrees) >= 0.35) {
+          hasSapling = true;
+        }
+
+        if (fullTrees > 100) {
+          fullTrees = 100;
+          hasSapling = false;
+        }
+
+        const renderKey = `${fullTrees}-${hasSapling ? 1 : 0}`;
+        if (pineTreesCount > 100) {
+          forestCountNote.textContent = `최대 100그루 표시 (총 ${formatDecimal(pineTreesCount, 1)}그루)`;
+        } else if (fullTrees === 0) {
+          forestCountNote.textContent = '새싹 1그루 자라는 중 🌱';
+        } else {
+          forestCountNote.textContent = `${fullTrees}그루${hasSapling ? ' + 새싹 1그루' : ''} 표시 중`;
+        }
+
+        // 불필요한 전체 재렌더링 방지로 부드러운 애니메이션 유지
+        if (renderKey === lastRenderedTreeKey) return;
+        lastRenderedTreeKey = renderKey;
+
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < fullTrees; i++) {
+          const span = document.createElement('span');
+          span.className = 'tree-sprout text-xl sm:text-2xl';
+          span.style.animationDelay = `${Math.min(i * 12, 350)}ms`;
+          span.textContent = '🌲';
+          span.setAttribute('aria-hidden', 'true');
+          fragment.appendChild(span);
+        }
+
+        if (hasSapling) {
+          const sapling = document.createElement('span');
+          sapling.className = 'tree-sprout text-xl sm:text-2xl';
+          sapling.style.animationDelay = `${Math.min(fullTrees * 12, 350)}ms`;
+          sapling.textContent = '🌱';
+          sapling.setAttribute('aria-hidden', 'true');
+          fragment.appendChild(sapling);
+        }
+
+        forestBox.innerHTML = '';
+        forestBox.appendChild(fragment);
+      }
+
+      // ==========================================
+      // 6. 전체 시뮬레이션 계산 및 UI 업데이트
+      // ==========================================
+      function updateSimulation() {
+        try {
+          const people = Math.max(1, Math.floor(Number(state.people) || 1));
+          const sheetsPerDay = Math.max(1, Math.floor(Number(state.sheetsPerDay) || 1));
+          const days = Math.max(1, Math.floor(Number(state.days) || 1));
+
+          // 총 절약한 A4 용지 장수 (여러 명 기준 & 1명 기준)
+          const singleSheets = 1 * sheetsPerDay * days;
+          const totalSheets = people * sheetsPerDay * days;
+          const totalWeightKg = (totalSheets * CONSTANTS.PAPER_WEIGHT_G) / 1000;
+
+          // 1) 에너지 계산
+          const totalWh = totalSheets * CONSTANTS.ENERGY_WH_PER_SHEET;
+          const totalkWh = totalSheets * CONSTANTS.ENERGY_KWH_PER_SHEET;
+          const singlekWh = singleSheets * CONSTANTS.ENERGY_KWH_PER_SHEET;
+          const totalMJ = (totalSheets * CONSTANTS.ENERGY_KJ_PER_SHEET) / 1000;
+          const phoneCharges = totalSheets * CONSTANTS.PHONE_CHARGES_PER_SHEET;
+          const ledHours = totalSheets * CONSTANTS.LED_10W_HOURS_PER_SHEET;
+
+          // 2) 이산화탄소(CO2) 감축량 계산
+          const totalCO2g = totalSheets * CONSTANTS.CO2_G_PER_SHEET;
+          const totalCO2kg = totalCO2g / 1000;
+          const singleCO2kg = (singleSheets * CONSTANTS.CO2_G_PER_SHEET) / 1000;
+          const totalCO2Ton = totalCO2kg / 1000;
+          const carKm = totalCO2g / CONSTANTS.CAR_CO2_G_PER_KM;
+
+          // 3) 소나무 심기 효과 및 원목 보호 계산
+          const pineTreesCO2 = totalCO2kg / CONSTANTS.PINE_CO2_KG_PER_YEAR;
+          const pineTreesWood = totalSheets / CONSTANTS.SHEETS_PER_LOG_TREE;
+
+          // 4) 물 절약량 계산
+          const totalWaterL = totalSheets * CONSTANTS.WATER_L_PER_SHEET;
+          const totalWaterTon = totalWaterL / 1000;
+          const waterBottles = totalSheets * CONSTANTS.BOTTLES_500ML_PER_SHEET;
+
+          // 요약 배너 DOM 반영
+          document.getElementById('days-badge').textContent = getDaysLabel(days);
+          document.getElementById('formula-summary').textContent =
+            `${formatInt(people)}명 × 하루 ${formatInt(sheetsPerDay)}장 × ${formatInt(days)}일 실천 시`;
+          document.getElementById('total-sheets').textContent = formatInt(totalSheets);
+          document.getElementById('total-weight').textContent = `${formatDecimal(totalWeightKg, 2)} kg`;
+
+          // 카드 1: 에너지 DOM 반영
+          document.getElementById('res-kwh').textContent = formatDecimal(totalkWh, 2);
+          document.getElementById('res-wh').textContent = formatInt(totalWh);
+          document.getElementById('res-mj').textContent = formatDecimal(totalMJ, 2);
+          document.getElementById('res-phones').textContent = formatInt(phoneCharges);
+          document.getElementById('res-led').textContent = formatDecimal(ledHours, 1);
+
+          // 카드 2: 이산화탄소 DOM 반영
+          document.getElementById('res-co2-kg').textContent = formatDecimal(totalCO2kg, 2);
+          document.getElementById('res-co2-g').textContent = formatInt(totalCO2g);
+          document.getElementById('res-car-km').textContent = formatDecimal(carKm, 1);
+
+          const tonWrap = document.getElementById('res-co2-ton-wrap');
+          if (totalCO2kg >= 1000) {
+            tonWrap.classList.remove('hidden');
+            document.getElementById('res-co2-ton').textContent = formatDecimal(totalCO2Ton, 2);
+          } else {
+            tonWrap.classList.add('hidden');
+          }
+
+          // 카드 3: 소나무 심기 효과 DOM 반영
+          document.getElementById('res-pine-co2').textContent = formatDecimal(pineTreesCO2, 2);
+          document.getElementById('res-pine-wood').textContent = formatDecimal(pineTreesWood, 2);
+
+          // 카드 4: 물 절약량 DOM 반영
+          document.getElementById('res-water-l').textContent = formatInt(totalWaterL);
+          document.getElementById('res-water-ton').textContent = formatDecimal(totalWaterTon, 2);
+          document.getElementById('res-bottles').textContent = formatInt(waterBottles);
+
+          // 소나무 숲 시각화 업데이트
+          renderPineForest(pineTreesCO2);
+
+          // 1명 vs 여러 명 비교 차트 업데이트
+          document.getElementById('multiplier-badge').textContent =
+            people === 1 ? '현재 1명 기준 (인원을 늘려보세요!)' : `함께하면 효과 ${formatInt(people)}배!`;
+          document.getElementById('compare-people-label').textContent = `${formatInt(people)}명`;
+
+          const singleRatioPercent = Math.max(2, Math.min(100, (1 / people) * 100));
+
+          document.getElementById('bar-energy-single-val').textContent = `${formatDecimal(singlekWh, 2)} kWh`;
+          document.getElementById('bar-energy-group-label').textContent = `우리 함께 (${formatInt(people)}명)`;
+          document.getElementById('bar-energy-group-val').textContent = `${formatDecimal(totalkWh, 2)} kWh`;
+          document.getElementById('bar-energy-single').style.width = `${singleRatioPercent}%`;
+          document.getElementById('bar-energy-group').style.width = '100%';
+
+          document.getElementById('bar-co2-single-val').textContent = `${formatDecimal(singleCO2kg, 2)} kg`;
+          document.getElementById('bar-co2-group-label').textContent = `우리 함께 (${formatInt(people)}명)`;
+          document.getElementById('bar-co2-group-val').textContent = `${formatDecimal(totalCO2kg, 2)} kg`;
+          document.getElementById('bar-co2-single').style.width = `${singleRatioPercent}%`;
+          document.getElementById('bar-co2-group').style.width = '100%';
+
+          updateActiveButtons();
+        } catch (err) {
+          console.error('시뮬레이션 계산 중 오류가 발생했습니다:', err);
+        }
+      }
+
+      // ==========================================
+      // 7. 이벤트 리스너 등록
+      // ==========================================
+      function initEventListeners() {
+        const peopleSlider = document.getElementById('people-slider');
+        const peopleInput = document.getElementById('people-input');
+        const sheetsSlider = document.getElementById('sheets-slider');
+        const sheetsInput = document.getElementById('sheets-input');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // 참여 인원 슬라이더 & 숫자 입력 동기화
+        peopleSlider.addEventListener('input', function () {
+          state.people = Number(this.value);
+          peopleInput.value = state.people;
+          updateSimulation();
+        });
+
+        peopleInput.addEventListener('input', function () {
+          let val = parseInt(this.value, 10);
+          if (isNaN(val) || val < 1) val = 1;
+          if (val > 100000) val = 100000;
+          state.people = val;
+          peopleSlider.value = Math.min(val, 1000);
+          updateSimulation();
+        });
+
+        peopleInput.addEventListener('blur', function () {
+          this.value = state.people;
+        });
+
+        // 하루 절약 장수 슬라이더 & 숫자 입력 동기화
+        sheetsSlider.addEventListener('input', function () {
+          state.sheetsPerDay = Number(this.value);
+          sheetsInput.value = state.sheetsPerDay;
+          updateSimulation();
+        });
+
+        sheetsInput.addEventListener('input', function () {
+          let val = parseInt(this.value, 10);
+          if (isNaN(val) || val < 1) val = 1;
+          if (val > 500) val = 500;
+          state.sheetsPerDay = val;
+          sheetsSlider.value = Math.min(val, 50);
+          updateSimulation();
+        });
+
+        sheetsInput.addEventListener('blur', function () {
+          this.value = state.sheetsPerDay;
+        });
+
+        // 참여 인원 프리셋 버튼
+        document.querySelectorAll('.preset-people').forEach((btn) => {
+          btn.addEventListener('click', function () {
+            const val = Number(this.getAttribute('data-people'));
+            state.people = val;
+            peopleInput.value = val;
+            peopleSlider.value = Math.min(val, 1000);
+            updateSimulation();
+          });
+        });
+
+        // 하루 절약 장수 프리셋 버튼
+        document.querySelectorAll('.preset-sheets').forEach((btn) => {
+          btn.addEventListener('click', function () {
+            const val = Number(this.getAttribute('data-sheets'));
+            state.sheetsPerDay = val;
+            sheetsInput.value = val;
+            sheetsSlider.value = Math.min(val, 50);
+            updateSimulation();
+          });
+        });
+
+        // 절약 기간 프리셋 버튼
+        document.querySelectorAll('.preset-days').forEach((btn) => {
+          btn.addEventListener('click', function () {
+            state.days = Number(this.getAttribute('data-days'));
+            updateSimulation();
+          });
+        });
+
+        // 기본값 초기화 버튼
+        resetBtn.addEventListener('click', function () {
+          state.people = 30;
+          state.sheetsPerDay = 3;
+          state.days = 365;
+
+          peopleInput.value = 30;
+          peopleSlider.value = 30;
+          sheetsInput.value = 3;
+          sheetsSlider.value = 3;
+
+          updateSimulation();
+        });
+      }
+
+      // DOM 로드 완료 후 초기화 실행
+      window.addEventListener('DOMContentLoaded', function () {
+        initEventListeners();
+        updateSimulation();
+      });
+    })();
+  </script>
+</body>
+</html>
